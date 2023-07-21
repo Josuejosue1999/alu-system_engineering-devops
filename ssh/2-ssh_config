@@ -1,0 +1,4 @@
+# ssh config file
+Host 5743-web-01
+      PasswordAuthentication no
+      IdentifyFile ~/.ssh/school

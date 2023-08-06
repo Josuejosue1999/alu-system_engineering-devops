@@ -1,19 +1,16 @@
-#!/usr/bin/env bash
-# Load balancer installations
+#!/bin/bash
 
-# Function to install HAProxy
-install_haproxy() {
-    sudo apt update
+# Update the system
+sudo apt update
+sudo apt upgrade -y
+
+# Install HAProxy if not already installed
+if ! command -v haproxy &>/dev/null; then
     sudo apt install -y haproxy
-}
+fi
 
-# Function to configure HAProxy
-configure_haproxy() {
-    # Create a backup of the original haproxy.cfg file
-    sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original
-
-    # Configure HAProxy
-    cat <<EOL | sudo tee /etc/haproxy/haproxy.cfg
+# Configure HAProxy
+sudo tee /etc/haproxy/haproxy.cfg > /dev/null <<EOF
 global
     log /dev/log local0
     log /dev/log local1 notice
@@ -44,27 +41,14 @@ backend http_backend
     balance roundrobin
     server 673187647-web-01 54.85.25.198:80 check
     server 673187647-web-02 50.19.132.15:80 check
-EOL
+EOF
 
-    # Enable HAProxy to be managed via init script
-    sudo sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
-}
+# Restart HAProxy to apply the changes
+sudo systemctl restart haproxy
 
-# Function to set up web server hostnames
-configure_hostnames() {
-    sudo sed -i "s/127.0.1.1 .*/127.0.1.1 673187647-web-01 673187647-web-02/" /etc/hosts
-    sudo hostnamectl set-hostname 673187647-lb-01
-}
+# Verify the HAProxy status
+sudo systemctl status haproxy
 
-# Main function
-main() {
-    install_haproxy
-    configure_haproxy
-    configure_hostnames
-
-    # Restart HAProxy service
-    sudo systemctl restart haproxy
-}
-
-main
+# Verify the hostname
+hostname
 

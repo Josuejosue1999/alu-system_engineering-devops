@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Load balancer installations
+
+#Get update and upgrade
+sudo apt-get -y update
+sudo apt-get -y upgrade
+
+#Install haproxy
+sudo apt-get -y install haproxy
+sudo sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
+sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original
+sudo sed -i "$ a\\listen 5743-lb-01\n\tbind *:80\n\tmode http\n\tbalance roundrobin\n\toption httpclose\n\toption forwardfor\n\tserver 5743-web-02 50.19.132.15 check\n\tserver 5743-web-01 54.85.25.198 check" /etc/haproxy/haproxy.cfg
+
+#test and restart
+sudo haproxy -t
+sudo service haproxy start

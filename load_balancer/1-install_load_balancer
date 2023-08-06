@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Load balancer installations
 
 # Function to install HAProxy
 install_haproxy() {

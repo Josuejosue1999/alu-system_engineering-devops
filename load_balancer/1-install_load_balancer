@@ -1,16 +1,69 @@
-#!/usr/bin/env bash
-# Load balancer installations
+#!/bin/bash
 
-#Get update and upgrade
-sudo apt-get -y update
-sudo apt-get -y upgrade
+# Function to install HAProxy
+install_haproxy() {
+    sudo apt update
+    sudo apt install -y haproxy
+}
 
-#Install haproxy
-sudo apt-get -y install haproxy
-sudo sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
-sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original
-sudo sed -i "$ a\\listen 5743-lb-01\n\tbind *:80\n\tmode http\n\tbalance roundrobin\n\toption httpclose\n\toption forwardfor\n\tserver 5743-web-02 50.19.132.15 check\n\tserver 5743-web-01 54.85.25.198 check" /etc/haproxy/haproxy.cfg
+# Function to configure HAProxy
+configure_haproxy() {
+    # Create a backup of the original haproxy.cfg file
+    sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.original
 
-#test and restart
-sudo haproxy -t
-sudo service haproxy start
+    # Configure HAProxy
+    cat <<EOL | sudo tee /etc/haproxy/haproxy.cfg
+global
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+
+defaults
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    option http-server-close
+    option forwardfor
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
+
+frontend http_frontend
+    bind *:80
+    mode http
+    default_backend http_backend
+
+backend http_backend
+    mode http
+    balance roundrobin
+    server 673187647-web-01 54.85.25.198:80 check
+    server 673187647-web-02 50.19.132.15:80 check
+EOL
+
+    # Enable HAProxy to be managed via init script
+    sudo sed -i 's/ENABLED=0/ENABLED=1/' /etc/default/haproxy
+}
+
+# Function to set up web server hostnames
+configure_hostnames() {
+    sudo sed -i "s/127.0.1.1 .*/127.0.1.1 673187647-web-01 673187647-web-02/" /etc/hosts
+    sudo hostnamectl set-hostname 673187647-lb-01
+}
+
+# Main function
+main() {
+    install_haproxy
+    configure_haproxy
+    configure_hostnames
+
+    # Restart HAProxy service
+    sudo systemctl restart haproxy
+}
+
+main
+

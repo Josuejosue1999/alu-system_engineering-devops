@@ -23,4 +23,3 @@ sudo nginx -t
 
 # Restart nginx after implementing changes
 sudo systemctl restart nginx
-

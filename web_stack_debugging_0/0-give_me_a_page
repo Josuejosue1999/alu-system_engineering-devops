@@ -4,6 +4,11 @@
 # Run the Docker container with port mapping and detached mode
 sudo docker run -p 8080:80 -d -it holbertonschool/265-0
 
-# Start the Apache service inside the container
+# Start the Apache service inside the container and check its status
 sudo docker exec -it b3b18109c526 service apache2 start
+if sudo docker exec -it b3b18109c526 service apache2 status | grep -q "apache2 is running"; then
+    echo "Apache service is running"
+else
+    echo "Apache service is not running"
+fi
 

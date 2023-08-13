@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# This script starts the Apache service in a Docker container to serve a webpage containing "Hello Holberton".
+
+# Run the Docker container with port mapping and detached mode
+sudo docker run -p 8080:80 -d -it holbertonschool/265-0
+
+# Start the Apache service inside the container
+sudo docker exec -it b3b18109c526 service apache2 start
+

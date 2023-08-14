@@ -1,21 +1,19 @@
 #!/usr/bin/env bash
-# Configure and run Nginx as www-data
+# runs nginx as nginx user
 
-echo "Stopping Apache2..."
+# Update nginx.conf to use the nginx user
+sed -i "s/#user www-data/user nginx/" /etc/nginx/nginx.conf
+
+# Set the correct permissions and ownership for nginx.conf
+chmod 700 /etc/nginx/nginx.conf
+chown nginx:nginx /etc/nginx/nginx.conf
+
+# Change the default port to 8080 in the default site configuration
+sed -i "s/80 default_server/8080 default_server/" /etc/nginx/sites-available/default
+
+# Stop Apache2 if running
 pkill apache2
 
-echo "Changing ownership of Nginx configuration files..."
-sudo chown -R www-data:www-data /etc/nginx/
-chown www-data:www-data /etc/nginx/nginx.conf
-
-echo "Modifying Nginx configuration..."
-sed -i 's/80/8080/g' /etc/nginx/sites-available/default
-
-echo "Starting Nginx service..."
-sudo -u www-data service nginx start
-
-echo "Restarting Nginx service..."
-sudo -u www-data service nginx restart
-
-echo "Nginx configuration and service restart complete."
+# Restart Nginx service with the nginx user
+sudo -u nginx service nginx restart
 

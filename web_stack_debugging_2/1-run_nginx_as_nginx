@@ -5,6 +5,9 @@
 sed -i "s/#user www-data/user nginx/" /etc/nginx/nginx.conf
 
 # Set the correct permissions and ownership for nginx.conf
+sudo chown -R nginx:nginx /etc/nginx
+sudo chown -R nginx:nginx /var/log/nginx
+
 chmod 700 /etc/nginx/nginx.conf
 chown nginx:nginx /etc/nginx/nginx.conf
 
@@ -14,6 +17,5 @@ sed -i "s/80 default_server/8080 default_server/" /etc/nginx/sites-available/def
 # Stop Apache2 if running
 pkill apache2
 
-# Restart Nginx service with the nginx user
-sudo -u nginx service nginx restart
-
+#start Nginx service with the nginx user
+sudo -u nginx service nginx start

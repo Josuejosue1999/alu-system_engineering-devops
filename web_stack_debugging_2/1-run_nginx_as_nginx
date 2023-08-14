@@ -1,19 +1,9 @@
 #!/usr/bin/env bash
-# runs nginx as nginx user
+# runs nginx as www-data
 
-# Update the package index
-apt-get update
+pkill apache2
+chown www-data:www-data /etc/nginx/nginx.conf
+chmod 777 /etc/nginx/nginx.conf
+sed -i 's/80/8080/g' /etc/nginx/sites-available/default
+sudo -u www-data service nginx start
 
-# Install net-tools if not already installed
-apt-get install -y net-tools
-
-# Modify nginx user and group in configuration files
-sed -i 's/user\s*www-data;/user nginx;/g' /etc/nginx/nginx.conf
-sed -i 's/www-data/nginx/g' /etc/nginx/nginx.conf
-sed -i 's/www-data/nginx/g' /etc/nginx/sites-available/default
-
-# Modify nginx port to 8080 in default site configuration
-sed -i 's/listen\s*80;/listen 8080;/g' /etc/nginx/sites-available/default
-
-# Start the nginx service
-service nginx start

@@ -1,11 +1,21 @@
-i#!/usr/bin/env bash
-# runs nginx as www-data
+#!/usr/bin/env bash
+# Configure and run Nginx as www-data
 
+echo "Stopping Apache2..."
 pkill apache2
+
+echo "Changing ownership of Nginx configuration files..."
 sudo chown -R www-data:www-data /etc/nginx/
 chown www-data:www-data /etc/nginx/nginx.conf
-chmod 777 /etc/nginx/nginx.conf
+
+echo "Modifying Nginx configuration..."
 sed -i 's/80/8080/g' /etc/nginx/sites-available/default
+
+echo "Starting Nginx service..."
 sudo -u www-data service nginx start
+
+echo "Restarting Nginx service..."
 sudo -u www-data service nginx restart
+
+echo "Nginx configuration and service restart complete."
 

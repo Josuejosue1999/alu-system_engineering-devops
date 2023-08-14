@@ -1,0 +1,17 @@
+# Check if nginx is running as the nginx user
+if ps auxff | grep -q '[n]ginx'; then
+  echo "Nginx is running as nginx user"
+  echo "Nginx is running as nginx user" >> /tmp/fix_status
+else
+  echo "Nginx is NOT running as nginx user"
+  echo "Nginx is NOT running as nginx user" >> /tmp/fix_status
+fi
+
+# Check if nginx is listening on port 8080
+if nc -z 0 8080; then
+  echo "Nginx is listening on port 8080"
+  echo "Nginx is listening on port 8080" >> /tmp/fix_status
+else
+  echo "Nginx is NOT listening on port 8080"
+  echo "Nginx is NOT listening on port 8080" >> /tmp/fix_status
+fi
